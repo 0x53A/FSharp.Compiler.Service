@@ -1664,14 +1664,12 @@ type IncrementalBuilder(tcGlobals,frameworkTcImports, nonFrameworkAssemblyInputs
     member __.AllDependenciesDeprecated = allDependencies 
 
 #if EXTENSIONTYPING
-    member __.ThereAreLiveTypeProviders = 
-        let liveTPs =
-            match cleanupItem with 
-            | None -> []
-            | Some tcImports -> [for ia in tcImports.GetImportedAssemblies() do yield! ia.TypeProviders]
-        match liveTPs with
-        | [] -> false
-        | _ -> true                
+    member __.ThereAreLiveTypeProviders =
+        match cleanupItem with 
+        | None -> false
+        | Some tcImports ->
+            let liveTPs = seq { for ia in tcImports.GetImportedAssemblies() do yield! ia.TypeProviders }
+            not (Seq.isEmpty liveTPs)              
 #endif
 
     member __.Step (ctok: CompilationThreadToken) =  
